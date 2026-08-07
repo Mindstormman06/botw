@@ -69,7 +69,7 @@ public:
     u32 sub_7100FB9C2C() const;
     void sub_7100FBA9BC();
     void sub_7100FBACE0(ContactLayer layer);
-    void sub_7100FBAD74();
+    void resetRigidBodyMotion();
     void* sub_7100FBAEDC(s32 rigidbody_idx, s32 ragdoll_idx) const;
     void sub_7100FBB00C(RigidBody* body, RigidBodyParam* param);
     void setMtxAndScale(const sead::Matrix34f& mtx, bool a2, bool a3, f32 scale);

@@ -161,6 +161,7 @@ public:
     void setDeleteDistance(f32 distance) { mDeleteDistanceSq = sead::Mathf::square(distance); }
 
     phys::CharacterController* getCharacterController();
+    phys::InstanceSet* getInstanceSet() const { return mPhysics; }
 
     void clearFlag(ActorFlag flag);
     bool checkFlag(ActorFlag flag) const;
