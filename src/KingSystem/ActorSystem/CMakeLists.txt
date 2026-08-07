@@ -112,6 +112,7 @@ target_sources(uking PRIVATE
     actInfoData.h
     actInstParamPack.cpp
     actInstParamPack.h
+    actLifeRecoveryInfo.cpp
     actLifeRecoveryInfo.h
     actPhysicsConstraints.cpp
     actPhysicsConstraints.h
