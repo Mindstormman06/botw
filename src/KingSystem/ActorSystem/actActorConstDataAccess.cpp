@@ -379,6 +379,13 @@ u32 ActorConstDataAccess::getBalloonHungActorBaseProcID() const {
     return *value;
 }
 
+bool ActorConstDataAccess::isAttClientEnabled(const sead::SafeString& client) const {
+    auto* actor = getActor();
+    if (!actor)
+        return false;
+    return actor->isAttClientEnabled(client);
+}
+
 bool ActorConstDataAccess::checkFlag25() const {
     auto* actor = getActor();
     return actor && actor->checkFlag(Actor::ActorFlag::_25);

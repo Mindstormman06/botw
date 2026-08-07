@@ -134,6 +134,8 @@ public:
     SEAD_RTTI_OVERRIDE(Actor, BaseProc)
 
 public:
+    bool isAttClientEnabled(const sead::SafeString& name) const;
+
     const sead::SafeString& getProfile() const;
     const char* getUniqueName() const;
 
