@@ -192,6 +192,7 @@ target_sources(uking PRIVATE
     physHavokMemoryAllocator.cpp
     physHavokMemoryAllocator.h
     physHeapUtil.h
+    physLayerMaskBuilder.cpp
     physLayerMaskBuilder.h
     physMaterialMask.cpp
     physMaterialMask.h

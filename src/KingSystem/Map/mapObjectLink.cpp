@@ -185,6 +185,12 @@ void ObjectLinkData::setGenGroup(GenGroup* group) {
         mGenGroup = group;
 }
 
+bool ObjectLinkData::checkDeleteLinkObjRevival() const {
+    if (mDeleteLinksSrcObj)
+        return mDeleteLinksSrcObj->checkRevivalMaybe(true);
+    return false;
+}
+
 // NON_MATCHING
 bool ObjectLinkArray::checkLink(MapLinkDefType t, bool b) {
     bool x_exists;

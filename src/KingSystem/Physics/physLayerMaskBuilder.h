@@ -15,8 +15,7 @@ public:
     };
 
     LayerMaskBuilder() = default;
-    // XXX: this doesn't need to be virtual...
-    virtual ~LayerMaskBuilder() = default;
+    virtual ~LayerMaskBuilder();
 
     LayerMaskBuilder& addLayer(ContactLayer layer);
     LayerMaskBuilder& removeLayer(ContactLayer layer);
