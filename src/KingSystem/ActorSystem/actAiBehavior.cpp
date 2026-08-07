@@ -1,6 +1,7 @@
 #include "KingSystem/ActorSystem/actAiBehavior.h"
 #include "KingSystem/ActorSystem/actActor.h"
 #include "KingSystem/ActorSystem/actActorParam.h"
+#include "KingSystem/ActorSystem/actAiClassDef.h"
 #include "KingSystem/ActorSystem/actAiRoot.h"
 #include "KingSystem/ActorSystem/behaviorDummyBehavior.h"
 #include "KingSystem/Resource/Actor/resResourceAIProgram.h"
@@ -9,6 +10,23 @@ namespace ksys::act::ai {
 
 Behavior::Behavior(const InitArg& arg)
     : mActor(arg.actor), mDefIdx(static_cast<u16>(arg.def_idx)) {}
+
+bool Behavior::init(sead::Heap* heap) {
+    AIDefSet set;
+    set.dynamic_params.num_params = 0;
+    set.ai_tree_params.num_params = 0;
+    auto* root_ai = mActor->getRootAi();
+    auto* aiprog = mActor->getParam()->getRes().mAIProgram;
+    const auto& behavior_data = aiprog->getBehaviors()[mDefIdx];
+
+    AIClassDef::instance()->getDef(behavior_data.mClassName, &set, AIDefType::Behavior);
+    if (!root_ai->loadMapUnitParams(set.map_unit_params, heap) ||
+        !root_ai->loadAITreeParams(set.ai_tree_params, heap)) {
+        return false;
+    }
+    m10();
+    return init_(heap);
+}
 
 Behaviors::Behaviors() = default;
 

@@ -34,6 +34,7 @@ public:
     virtual void m7() {}
     virtual void m8() {}
     virtual void m9() {}
+    virtual bool init_(sead::Heap* heap) = 0;
     virtual void m10() {}
     virtual void m11() {}
     virtual bool updateForPreDelete() { return true; }
