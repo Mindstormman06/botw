@@ -4,6 +4,7 @@
 #include <container/seadPtrArray.h>
 #include <heap/seadDisposer.h>
 #include <thread/seadCriticalSection.h>
+#include "KingSystem/Physics/System/physWorld.h"
 #include "KingSystem/Physics/physDefines.h"
 #include "KingSystem/Utils/Types.h"
 
@@ -139,9 +140,12 @@ public:
     sead::Heap* getPhysicsTempHeap(LowPriority low_priority) const;
 
 private:
-    u8 _28[0x60 - 0x28];
-    bool mPaused;
-    u8 _61[0x64 - 0x61];
+    sead::FixedPtrArray<World, 2> mWorlds;
+    u8 _48[0x60 - 0x48];
+    bool _60{};
+    bool _61{};
+    bool _62{};
+    bool mPaused{};
     float _64 = 1.0 / 30.0;
     float _68 = 1.0 / 30.0;
     float _6c = 1.0;

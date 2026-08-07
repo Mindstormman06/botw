@@ -66,6 +66,11 @@ public:
                hkpContactPointProperties::CONTACT_IS_DISABLED;
     }
 
+    bool getField90() const { return _90; }
+    bool getField91() const { return _91; }
+    void setField90(bool value) { _90 = value; }
+    void setField91(bool value) { _91 = value; }
+
 protected:
     struct TrackedContactPointLayer {
         LayerContactPointInfo* info;

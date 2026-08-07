@@ -1,10 +1,12 @@
 #include "KingSystem/Physics/System/physSystem.h"
 #include <heap/seadHeap.h>
 #include <thread/seadThread.h>
+#include "KingSystem/ActorSystem/actActorSystem.h"
 #include "KingSystem/Physics/Cloth/physClothResource.h"
 #include "KingSystem/Physics/Ragdoll/physRagdollControllerKeyList.h"
 #include "KingSystem/Physics/Ragdoll/physRagdollResource.h"
 #include "KingSystem/Physics/RigidBody/TeraMesh/physTeraMeshRigidBodyResource.h"
+#include "KingSystem/Physics/RigidBody/physRigidBody.h"
 #include "KingSystem/Physics/RigidBody/physRigidBodyResource.h"
 #include "KingSystem/Physics/StaticCompound/physStaticCompound.h"
 #include "KingSystem/Physics/SupportBone/physSupportBoneResource.h"
@@ -134,6 +136,65 @@ RagdollControllerKeyList* System::getRagdollCtrlKeyList() const {
     if (!mSystemData)
         return nullptr;
     return mSystemData->getRagdollCtrlKeyList();
+}
+
+hkpWorld* System::getHavokWorld(ContactLayerType type) const {
+    return mWorlds[static_cast<s32>(type)]->getHavokWorld();
+}
+
+void System::lockWorld(ContactLayerType type, const char* description, int b,
+                       OnlyLockIfNeeded only_lock_if_needed) {
+    auto* world =
+        static_cast<u32>(type) < static_cast<u32>(mWorlds.size()) ?
+            mWorlds[static_cast<s32>(type)] :
+            nullptr;
+    world->lockCS(description, b, static_cast<bool>(only_lock_if_needed));
+}
+
+void System::unlockWorld(ContactLayerType type, const char* description, int b,
+                         OnlyLockIfNeeded only_lock_if_needed) {
+    auto* world =
+        static_cast<u32>(type) < static_cast<u32>(mWorlds.size()) ?
+            mWorlds[static_cast<s32>(type)] :
+            nullptr;
+    world->unlockCS(description, b, static_cast<bool>(only_lock_if_needed));
+}
+
+bool System::getEntityContactListenerField90() const {
+    return mContactListeners[0]->getField90();
+}
+
+bool System::getEntityContactListenerField91() const {
+    return mContactListeners[0]->getField91();
+}
+
+bool System::isActorSystemIdle() const {
+    bool idle = _61 != 0;
+    if (_62)
+        idle = true;
+
+    auto* actor_system = act::ActorSystem::instance();
+    if (actor_system)
+        return idle || actor_system->getState() != act::ActorSystem::State::_2;
+
+    return true;
+}
+
+void System::removeRigidBodyFromContactSystem(RigidBody* body) {
+    const auto layer = body->getContactLayer();
+    const auto type = getContactLayerType(layer);
+
+    if (_60) {
+        mContactMgr->removeContactPointsWithBody(body);
+    }
+
+    ContactListener* listener =
+        static_cast<u32>(type) < static_cast<u32>(mContactListeners.size()) ?
+            mContactListeners[static_cast<s32>(type)] :
+            nullptr;
+    listener->unregisterCollisionWithBody(body);
+    mContactMgr->removeCollisionEntriesWithBody(body);
+    mContactMgr->removeImpulseEntriesWithBody(body);
 }
 
 bool System::isHavokMainHeapOom() const {
