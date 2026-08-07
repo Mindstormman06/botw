@@ -39,6 +39,11 @@ public:
     virtual bool updateForPreDelete() { return true; }
     virtual void onPreDelete() {}
 
+    bool isNoStop() const { return (_13 & 1) != 0; }
+    u8 getCalcTiming() const { return _12; }
+    void setBehavior_(Behavior** head, void* p3);
+    void resetBehavior_(Behavior** head, void* p3);
+
 protected:
     Actor* mActor{};
     u16 mDefIdx{};

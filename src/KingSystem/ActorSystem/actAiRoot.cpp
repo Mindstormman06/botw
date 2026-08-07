@@ -143,6 +143,22 @@ bool RootAi::getAITreeVariable2(bool** value, const sead::SafeString& key) const
     return getAITreeVariable(value, key);
 }
 
+void RootAi::setBehavior(Behavior* behavior) {
+    const bool no_stop = behavior->isNoStop();
+    auto timing = behavior->getCalcTiming();
+    if (timing > 2)
+        timing = 0;
+    behavior->setBehavior_(&mBehaviorsByStopAndCalcTiming[no_stop][timing], &_138);
+}
+
+void RootAi::resetBehavior(Behavior* behavior) {
+    const bool no_stop = behavior->isNoStop();
+    auto timing = behavior->getCalcTiming();
+    if (timing > 2)
+        timing = 0;
+    behavior->resetBehavior_(&mBehaviorsByStopAndCalcTiming[no_stop][timing], &_138);
+}
+
 const char* getDefaultAiName(s32 root_idx) {
     static constexpr const char* names[] = {"DemoRootAI", "Root"};
     if (root_idx >= 2)
