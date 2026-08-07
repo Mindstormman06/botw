@@ -298,6 +298,8 @@ public:
     void emitBasicSigOn();
     void emitBasicSigOff();
     bool checkBasicSig() const;
+    void emitSignal(int type, bool on);
+    void* findPlacementLinkWithType(int type) const;
 
     void nullsub_4649();  // Some kind of logging which has been excluded from the build?
 

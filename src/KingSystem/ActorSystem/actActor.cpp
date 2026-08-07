@@ -88,4 +88,17 @@ phys::CharacterController* Actor::getCharacterController() {
     return mPhysics->getCharacterController();
 }
 
+void Actor::emitBasicSigOn() {
+    emitSignal(0, true);
+    emitSignal(9, true);
+}
+
+void Actor::emitBasicSigOff() {
+    emitSignal(0, false);
+}
+
+bool Actor::checkBasicSig() const {
+    return findPlacementLinkWithType(0) != nullptr;
+}
+
 }  // namespace ksys::act
