@@ -48,23 +48,24 @@ void PlacementMgr::reset7F0() {
     _7f0 = 0;
 }
 
-// NON_MATCHING
 void PlacementMgr::initClusteredRenderer() {
-    if (mThread != nullptr && mClusteredRenderer == nullptr)
-        return;
-    if (mThreadHeap == nullptr)
-        return;
+    if (mThread == nullptr) {
+        if (mThreadHeap == nullptr)
+            return;
 
-    mFlags.reset(MgrFlag::_40000);
-    mThread = new (mThreadHeap)
-        sead::DelegateThread("PlacementMgr", &mThreadParams, mThreadHeap,
-                             sead::ThreadUtil::ConvertPrioritySeadToPlatform(0x14),
-                             sead::MessageQueue::BlockType::Blocking, 0x7fffffff, 0x100000, 0x20);
-    mRequestedMsg = 0;
-    sead::CoreIdMask mask{sead::CoreId::cSub4};
-    mThread->setAffinity(mask);
-    mThread->start();
-    mFlags.reset(MgrFlag::_2);
+        mFlags.reset(MgrFlag::_40000);
+        mThread = new (mThreadHeap, std::nothrow)
+            sead::DelegateThread("PlacementMgr", &mThreadParams, mThreadHeap,
+                                 sead::ThreadUtil::ConvertPrioritySeadToPlatform(0x14),
+                                 sead::MessageQueue::BlockType::Blocking, 0x7fffffff, 0x100000, 0x20);
+        if (mThread != nullptr) {
+            mRequestedMsg = 0;
+            sead::CoreIdMask mask{sead::CoreId::cSub4};
+            mThread->setAffinity(mask);
+            mThread->start();
+            mFlags.reset(MgrFlag::_2);
+        }
+    }
 
     if (mClusteredRenderer != nullptr) {
         mClusteredRenderer->startThread();
