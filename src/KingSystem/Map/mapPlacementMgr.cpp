@@ -57,7 +57,8 @@ void PlacementMgr::initClusteredRenderer() {
         mThread = new (mThreadHeap, std::nothrow)
             sead::DelegateThread("PlacementMgr", &mThreadParams, mThreadHeap,
                                  sead::ThreadUtil::ConvertPrioritySeadToPlatform(0x14),
-                                 sead::MessageQueue::BlockType::Blocking, 0x7fffffff, 0x100000, 0x20);
+                                 sead::MessageQueue::BlockType::Blocking, 0x7fffffff,
+                                 0x100000, 0x20);
         if (mThread != nullptr) {
             mRequestedMsg = 0;
             sead::CoreIdMask mask{sead::CoreId::cSub4};
