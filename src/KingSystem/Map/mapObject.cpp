@@ -1,5 +1,6 @@
 #include "KingSystem/Map/mapObject.h"
 #include "KingSystem/ActorSystem/actActor.h"
+#include "KingSystem/ActorSystem/actActorUtil.h"
 #include "KingSystem/ActorSystem/actBaseProcMgr.h"
 #include "KingSystem/ActorSystem/actInfoData.h"
 #include "KingSystem/GameData/gdtManager.h"
@@ -443,6 +444,31 @@ bool Object::checkCreateOrDeleteLinkObjRevival() const {
     if (mLinkData != nullptr)
         return mLinkData->checkCreateOrDeleteLinkObjRevival();
     return false;
+}
+
+bool Object::shouldSkipSpawn_(bool x) const {
+    if (getActorData().mFlags.isOnBit(ActorData::Flag::RevivalUnderGodTimeOrNoneForUsed)) {
+        bool val = false;
+        if (mRevivalGameDataFlagHash != gdt::InvalidHandle) {
+            gdt::Manager::instance()->getBool(mRevivalGameDataFlagHash, &val, true);
+            if (val)
+                return true;
+        }
+    }
+
+    if (x && getActorData().mFlags.isOnBit(ActorData::Flag::RevivalForUsed))
+        return true;
+
+    if (mFlags0.isOn(Flag0::_40000000))
+        return true;
+
+    if (act::shouldSkipSpawnFairy(const_cast<Object*>(this)))
+        return true;
+
+    if (act::shouldSkipSpawnGodForestActor(const_cast<Object*>(this)))
+        return true;
+
+    return act::shouldSkipSpawnWhenRaining(const_cast<Object*>(this));
 }
 
 bool Object::shouldSkipSpawn() const {
