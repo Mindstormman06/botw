@@ -256,25 +256,22 @@ bool AutoPlacement::sub_7100650144(PlacementGroup* grp, bool check_exposure) {
 bool AutoPlacement::sub_710064EF24(ActorSpawnInfo* info, const sead::Vector3f& pos) {
     auto* mgr = AutoPlacementMgr::instance();
     u32 placement_type = info->flow->placement_type;
-    if (mgr->auto0(pos, placement_type)) {
-        if (mNearFlag != 0xFF) {
+    bool a0 = mgr->auto0(pos, placement_type);
+    if (a0) {
+        if (mNearFlag != 0xFF)
             return false;
-        }
-        if (info->name.findIndex("Enemy_Dragon") == -1) {
+        if (info->name.findIndex("Enemy_Dragon") == -1)
             return false;
-        }
     }
 
-    if ((mNearFlag != 0xFF && mgr->auto11(pos)) ||
-        (!sub_710064E178(info->name, placement_type, pos))) {
-        return false;
+    if ((mNearFlag == 0xFF || !mgr->auto11(pos)) &&
+        sub_710064E178(info->name, placement_type, pos)) {
+        if (mNearFlag > 0xFD)
+            return true;
+        if (!mgr->auto2(info->name, pos))
+            return true;
     }
-
-    if (mNearFlag != 0xFE && mNearFlag != 0xFF) {
-        if (AutoPlacementMgr::instance()->auto2(info->name, pos))
-            return false;
-    }
-    return true;
+    return false;
 }
 
 void AutoPlacement::sub_710064F744(u8 a1, u8 a2) {
