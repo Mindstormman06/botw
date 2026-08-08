@@ -5,6 +5,7 @@
 #include <prim/seadTypedBitFlag.h>
 #include <prim/seadTypedLongBitFlag.h>
 #include <thread/seadAtomic.h>
+#include <thread/seadMutex.h>
 #include <thread/seadReadWriteLock.h>
 #include "KingSystem/Map/mapPlacementMap.h"
 #include "KingSystem/Utils/Types.h"
@@ -116,10 +117,26 @@ public:
     Object* getStaticObj_0(int object_idx);
     u32 allocGroupForDynamicMap(PlacementMap* pmap);
 
+    struct Group {
+        u8 _0[8];
+        u32 mSize;
+        u8 _c[4];
+        Object* mBuffer;
+        u32 mCount;
+        u8 _1c[4];
+
+        u32 size() const { return mCount; }
+        Object* getBufferPtr() const { return mBuffer; }
+    };
+    KSYS_CHECK_SIZE_NX150(Group, 0x20);
+
     u8 _0[0x28 - 0x0];
     sead::ReadWriteLock mLock;
     PlacementAreaMgr* mStruct1;
-    u8 _e8[0x538 - 0xe8];
+    u8 _e8[0xf0 - 0xe8];
+    Group* mGroups;
+    Object* mQueuedObjs[128];
+    sead::Mutex mMutex;
     sead::SafeArray<ActorData, 6000> mActorData;
     u8 _261b38[0x2a8058 - 0x261b38];
     u32 mActorDataMapSize;

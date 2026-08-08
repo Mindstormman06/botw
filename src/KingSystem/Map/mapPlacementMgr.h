@@ -57,6 +57,8 @@ public:
     void threadFn(sead::Thread* thread, sead::MessageQueue::Element msg);
     // 0x00000071011eb4dc
     bool auto17(Object* obj);
+    void disableObjStaticCompound_0(Object* obj);
+    void auto4(Object* obj, bool b);
 
     enum class MgrFlag {
         _1 = 0x1,
