@@ -1,5 +1,9 @@
 #include "KingSystem/ActorSystem/actActorCaptureMgr.h"
 #include "KingSystem/ActorSystem/actActor.h"
+#include "KingSystem/ActorSystem/actActorParam.h"
+#include "KingSystem/ActorSystem/actBaseProcMgr.h"
+#include "KingSystem/ActorSystem/actInfoData.h"
+#include "KingSystem/Resource/Actor/resResourceModelList.h"
 #include "KingSystem/Resource/resEntryFactory.h"
 #include "KingSystem/Resource/resLoadRequest.h"
 #include "KingSystem/Resource/resResourceMgrTask.h"
@@ -61,6 +65,28 @@ void ActorCaptureMgr::loadCaptureParam() {
     mRes.mCameraInfoObj.copy(param->mCameraInfoObj);
     mRes.mActorInfoObj.copy(param->mActorInfoObj);
     mRes.mLightInfoObj.copy(param->mLightInfoObj);
+}
+
+const char* ActorCaptureMgr::getCapturedActorName() const {
+    Actor* actor = mActor;
+    if (InfoData::instance()->hasTag(mActor->getName().cstr(), 0xf2bc0087)) {
+        if (auto* mgr = BaseProcMgr::instance()) {
+            BaseProcMgr::ProcFilters filters;
+            filters.set(BaseProcMgr::ProcFilter::Initializing);
+            filters.set(BaseProcMgr::ProcFilter::SkipAccessCheck);
+            auto* proc = mgr->getProc(mStr2, filters);
+            if (auto* target = sead::DynamicCast<Actor>(proc))
+                actor = target;
+        }
+    }
+    if (!actor || !actor->getParam())
+        return nullptr;
+    auto* model_list = actor->getParam()->getRes().mModelList;
+    if (!model_list)
+        return nullptr;
+    res::ModelList::ModelDataInfo info;
+    model_list->getModelDataInfo(&info);
+    return info.folder_name[0];
 }
 
 }  // namespace ksys::act
