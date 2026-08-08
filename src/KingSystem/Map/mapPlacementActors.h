@@ -14,7 +14,9 @@ namespace ksys::map {
 
 class Object;
 class PlacementMap;
+class PlacementMapMgr;
 class PlacementAreaMgr;
+class MubinIter;
 
 // TODO: rename
 enum class ActorFlag8 {
@@ -130,9 +132,14 @@ public:
     };
     KSYS_CHECK_SIZE_NX150(Group, 0x20);
 
+    Object* allocAndInitObj(s32 group_idx, PlacementMapMgr* mgr, const sead::SafeString& name,
+                            const MubinIter* iter, u32 map_id, u32 flag);
+    void parseLinks(Object* obj, s32 a1, s32 parsed_num, s32 count, sead::Heap* heap);
+    void buildGenGroup(Object* obj, sead::Heap* heap);
+
     u8 _0[0x28 - 0x0];
     sead::ReadWriteLock mLock;
-    PlacementAreaMgr* mStruct1;
+    PlacementAreaMgr* mPlacementAreaMgr;
     u8 _e8[0xf0 - 0xe8];
     Group* mGroups;
     Object* mQueuedObjs[128];

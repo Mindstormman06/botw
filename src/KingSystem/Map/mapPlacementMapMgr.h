@@ -43,6 +43,9 @@ public:
 
     bool isShrineOrDivineBeast() const { return mIsShrineOrDivineBeast; }
 
+    void getMapType(sead::BufferedSafeString* out) const;
+    void* parseRoute(sead::Heap* heap, u32 hash_id, void* rail);
+
 private:
     sead::Buffer<PlacementMap> mMaps;
     MapProperties* mMapProps;

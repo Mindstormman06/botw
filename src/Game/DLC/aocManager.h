@@ -38,6 +38,9 @@ public:
     /// @return Whether the Champion's Ballad DLC is supported.
     bool hasAoc3() const { return mVersion >= 0x300; }
 
+    bool isDungeonMerged() const { return (mVersionFlags.getDirect() & 0x10) != 0; }
+    bool checkFieldMapBounds() const { return (mVersionFlags.getDirect() & 0x4) != 0; }
+
     void loadAocMainFieldPack(ksys::OverlayArena* arena);
     void registerAocMainFieldPack();
     void unloadAocMainFieldPack();

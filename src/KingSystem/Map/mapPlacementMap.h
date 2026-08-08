@@ -73,7 +73,7 @@ private:
     void doLoadStaticMap_(bool load);
 
     bool parseStaticMap_(sead::Heap* heap, u8* data);
-    void parseMap_(sead::Heap* heap, u8* data, int group, u32 idx);
+    void parseMap_(sead::Heap* heap, const u8* data, s32 group_idx, u32 map_id);
 
     bool loadDynamicMap();
 
@@ -132,7 +132,7 @@ private:
     u32 _38c;  // 38c ... from MapMgr::ctor (a8)
     PlacementActors* mPa;
     PlacementMapMgr* mMgr;
-    void* mP18;
+    Placement18* mP18;
     sead::Buffer<void*> mRoutes;
     int mNumRoutes;
     int gap_38c;

@@ -207,10 +207,7 @@ public:
     bool isInsideNpc(const sead::Vector3f& pos);
     // d24400
     void pushFarModels();
-    // d2449c
     bool x_0(const int& idx, const int& sub_idx);
-
-    s8 isInsideNpcIdx(const sead::Vector3f& pos);
     GeneralArea* findGeneralArea(const u32& id);
 
     sead::TypedBitFlag<Flag> mFlags;

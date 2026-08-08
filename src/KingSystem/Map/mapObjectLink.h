@@ -97,6 +97,7 @@ public:
     bool allocLinksToSelf(s32 num_links, sead::Heap* heap);
 
     bool sub_7100D4EC40(Object* src, ObjectLink* link, Object* dest);
+    void setupLinks(PlacementActors* pa, Object* obj, sead::Heap* heap, u32 flag);
     void sub_7100D4FB78(Object* obj);
     bool checkCreateLinkObjRevival() const;
     bool checkDeleteLinkObjRevival() const;

@@ -2,12 +2,21 @@
 #include <prim/seadScopedLock.h>
 #include <thread/seadReadWriteLock.h>
 #include "Game/DLC/aocManager.h"
+#include "KingSystem/ActorSystem/actActorUtil.h"
+#include "KingSystem/ActorSystem/actInfoData.h"
 #include "KingSystem/Map/mapObject.h"
+#include "KingSystem/Map/mapObjectLink.h"
+#include "KingSystem/Map/mapPlacementAreaMgr.h"
 #include "KingSystem/Physics/StaticCompound/physStaticCompound.h"
 #include "KingSystem/Physics/StaticCompound/physStaticCompoundRigidBodyGroup.h"
 #include "KingSystem/Resource/resLoadRequest.h"
 
 namespace ksys::map {
+
+class Placement18 {
+public:
+    void* parseRail(PlacementActors* pa, u32 map_id, const sead::SafeString& name, const MubinIter* iter, sead::Heap* heap);
+};
 
 PlacementMap::PlacementMap() {
     mInitStatus = InitStatus::None;
@@ -331,6 +340,166 @@ PlacementMap::MapObjStatus PlacementMap::parseDynamicMap() {
     parseMap_(0, resource->getRawData(), mDynamicGroupIdx, mIdx);
     lock->writeUnlock();
     return MapObjStatus::Loading;
+}
+
+void PlacementMap::parseMap_(sead::Heap* heap, const u8* data, s32 group_idx, u32 map_id) {
+    if (data == nullptr) {
+        mStaticMubinRes.waitForReady();
+        mStaticMubinRes.parseResource(nullptr);
+        auto* resource = mStaticMubinRes.getResource();
+        if (!resource)
+            return;
+        auto* direct = sead::DynamicCast<sead::DirectResource>(resource);
+        if (!direct)
+            return;
+        data = direct->getRawData();
+    }
+
+    MubinIter iter(data);
+    MubinIter obj_iter;
+
+    iter.tryGetParamFloatByKey(&mMat(0, 3), "LocationPosX");
+    iter.tryGetParamFloatByKey(&mMat(2, 3), "LocationPosZ");
+
+    if (group_idx == 0) {
+        mParsedNumStaticObjs = mPa->getNumStaticObjs();
+    }
+
+    bool is_dungeon = mMubinPath.findIndex("CDungeon") != -1;
+    sead::FormatFixedSafeString<32> map_type;
+    mMgr->getMapType(&map_type);
+    bool is_main_field = (map_type == "MainField");
+    bool is_aoc_field = (map_type == "AocField");
+
+    MubinIter objs_iter;
+    if (iter.tryGetParamIterByKey(&objs_iter, "Objs") && objs_iter.getSize() > 0) {
+        for (s32 i = 0; i < objs_iter.getSize(); ++i) {
+            if (objs_iter.tryGetIterByIndex(&obj_iter, i)) {
+                const char* unit_name = nullptr;
+                if (obj_iter.tryGetParamStringByKey(&unit_name, "UnitConfigName")) {
+                    if (!mPa->mPlacementAreaMgr->parseAreas(unit_name, obj_iter)) {
+                        bool skip = false;
+                        if (is_dungeon) {
+                            if (uking::aoc::Manager::instance() &&
+                                !uking::aoc::Manager::instance()->isDungeonMerged()) {
+                                if (std::strncmp(unit_name, "DgnMrgPrt_", 10) == 0)
+                                    skip = true;
+                            }
+                            if (act::InfoData::instance()->hasTag(unit_name, 0x638d69dd))
+                                skip = true;
+                        } else {
+                            if (std::strncmp(unit_name, "DgnMrgPrt_", 10) == 0)
+                                skip = true;
+                        }
+
+                        if (is_main_field && uking::aoc::Manager::instance() &&
+                            uking::aoc::Manager::instance()->checkFieldMapBounds()) {
+                            SRT srt;
+                            obj_iter.getSRT(&srt);
+                            if (srt.translate.y < 0.0f) {
+                                const char* profile = nullptr;
+                                act::InfoData::instance()->getActorProfile(&profile, unit_name);
+                                sead::SafeString prof(profile);
+                                if (prof.findIndex("Npc") != -1 ||
+                                    prof.findIndex("Animal") != -1 ||
+                                    prof.findIndex("Enemy") != -1 ||
+                                    prof.findIndex("Horse") != -1) {
+                                    continue;
+                                }
+                            }
+                        }
+
+                        if (!skip) {
+                            auto* obj = mPa->allocAndInitObj(group_idx, mMgr, unit_name, &obj_iter, mIdx, 0);
+                            if (is_aoc_field && obj) {
+                                const char* obj_name = obj->getUnitConfigNameFromByaml();
+                                if (act::hasAnyRevivalTag(obj_name) &&
+                                    obj->getRevivalGameDataFlagHash() != gdt::InvalidHandle &&
+                                    obj->isRevivalGameDataFlagOn()) {
+                                    obj->setRevivalFlagValue(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (group_idx == 0) {
+        mPa->mPlacementAreaMgr->x();
+        MubinIter rails_iter;
+        if (iter.tryGetParamIterByKey(&rails_iter, "Rails") && rails_iter.getSize() > 0) {
+            s32 route_count = 0;
+            for (s32 i = 0; i < rails_iter.getSize(); ++i) {
+                MubinIter rail_item;
+                if (rails_iter.tryGetIterByIndex(&rail_item, i)) {
+                    const char* unit_name = nullptr;
+                    if (rail_item.tryGetParamStringByKey(&unit_name, "UnitConfigName")) {
+                        if (std::strncmp(unit_name, "Route", 5) == 0)
+                            route_count++;
+                    }
+                }
+            }
+
+            if (route_count > 0) {
+                mRoutes.tryAllocBuffer(route_count, heap);
+            }
+
+            s32 route_idx = 0;
+            for (s32 i = 0; i < rails_iter.getSize(); ++i) {
+                MubinIter rail_item;
+                if (rails_iter.tryGetIterByIndex(&rail_item, i)) {
+                    u32 hash_id = 0;
+                    if (rail_item.tryGetParamUIntByKey(&hash_id, "HashId")) {
+                        const char* unit_name = nullptr;
+                        if (rail_item.tryGetParamStringByKey(&unit_name, "UnitConfigName")) {
+                            auto* rail = mP18->parseRail(mPa, map_id, unit_name, &rail_item, heap);
+                            if (rail && std::strncmp(unit_name, "Route", 5) == 0) {
+                                auto* route = mMgr->parseRoute(heap, hash_id, rail);
+                                if (route) {
+                                    mRoutes[route_idx++] = route;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        mNumStaticObjs = mPa->getNumStaticObjs() - 1;
+        s32 num_objs = mPa->getNumStaticObjs() - mParsedNumStaticObjs;
+        if (num_objs > 0) {
+            for (s32 i = 0; i < num_objs; ++i) {
+                auto* obj = mPa->getStaticObj_0(mParsedNumStaticObjs + i);
+                mPa->parseLinks(obj, 0, mParsedNumStaticObjs, num_objs, heap);
+            }
+
+            for (s32 i = 0; i < num_objs; ++i) {
+                auto* obj = mPa->getStaticObj_0(mParsedNumStaticObjs + i);
+                if (obj->getLinkData()) {
+                    obj->getLinkData()->setupLinks(mPa, obj, heap, 0);
+                }
+            }
+
+            for (s32 i = 0; i < num_objs; ++i) {
+                auto* obj = mPa->getStaticObj_0(mParsedNumStaticObjs + i);
+                auto* link_data = obj->getLinkData();
+                if (link_data) {
+                    if (!obj->checkActorDataFlag(mPa, ActorData::Flag::MapConstPassive)) {
+                        if ((link_data->mLinksOther.findLinkWithType(MapLinkDefType(0x12)) ||
+                             link_data->findLinkWithType(MapLinkDefType(0x14))) &&
+                            obj->getFlags().isOn(Object::Flag::IsLinkTag)) {
+                            // update flags
+                        }
+                    }
+                    if (link_data->mGenGroup == nullptr) {
+                        mPa->buildGenGroup(obj, heap);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void PlacementMap::doLoadStaticMap_(bool load) {
