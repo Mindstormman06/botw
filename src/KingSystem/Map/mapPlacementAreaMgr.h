@@ -205,6 +205,7 @@ public:
     // d2388c
     void weirdSetup();  // perhaps used with teleport feature?
     bool isInsideNpc(const sead::Vector3f& pos);
+    s8 isInsideNpcIdx(const sead::Vector3f& pos);
     // d24400
     void pushFarModels();
     bool x_0(const int& idx, const int& sub_idx);
