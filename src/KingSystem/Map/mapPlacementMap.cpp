@@ -333,6 +333,29 @@ PlacementMap::MapObjStatus PlacementMap::parseDynamicMap() {
     return MapObjStatus::Loading;
 }
 
+void PlacementMap::doLoadStaticMap_(bool load) {
+    res::LoadRequest req;
+    if (mDistanceToCurrentMapUnit > 0)
+        req._8 = false;
+
+    req._26 = true;
+    req._22 = true;
+
+    sead::FormatFixedSafeString<128> path;
+    const char* ext_pos = mMubinPath.cstr();
+    s32 slash_idx = mMubinPath.findIndex("/");
+    if (slash_idx >= 0)
+        ext_pos = mMubinPath.cstr() + slash_idx + 1;
+
+    path.format("Map/MainField/%s/%s.smubin", mMubinPath.cstr(), ext_pos);
+    if (!load) {
+        req._22 = false;
+        mStaticMubinRes.load(path, &req);
+    } else {
+        mStaticMubinRes.load(path, &req);
+    }
+}
+
 bool PlacementMap::loadStaticMap_(bool load) {
     if (!mMubinPath.isEmpty()) {
         mStaticMapParsed = true;
