@@ -298,23 +298,26 @@ s32 AutoPlacement::placeGroup(AutoPlacementFlowRes* res) {
         return -1;
     }
 
+    u32 idx = static_cast<u32>(mGroupIdx);
+    if (idx > 0xFF)
+        idx = 0;
+
     mThing2.mRaycast = mThing1.mRaycast;
     _6 = 0;
     _b = 0xFF;
 
-    auto& grp = mGroups[mGroupIdx];
-    if (grp.b.isEmpty()) {
-        return -1;
+    auto& grp = mGroups[idx];
+    if (!grp.b.isEmpty()) {
+        _8868 = sead::SafeString::cEmptyString;
+        int tmp = 0;
+        res->start(this, grp.b, &tmp);
+        if (_9) {
+            _9 = 0;
+            return mGroupIdx;
+        }
     }
 
-    _8868 = sead::SafeString::cEmptyString;
-    int tmp = 0;
-    res->start(this, grp.a, &tmp);
-    if (!_9)
-        return -1;
-    _9 = 0;
-
-    return mGroupIdx;
+    return -1;
 }
 
 s32 AutoPlacement::sub_7100650908() {
