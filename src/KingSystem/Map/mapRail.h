@@ -117,6 +117,8 @@ class RailGuide : public Rail {
 public:
     RailGuide();
     ~RailGuide() override;
+
+    RailPoint* allocPoint(sead::Heap* heap) override;
 };
 
 class RailRemainGuide : public RailGuide {
