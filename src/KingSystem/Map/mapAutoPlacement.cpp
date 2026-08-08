@@ -376,7 +376,7 @@ void AutoPlacement::sub_7100650C28(phys::RigidBody* rb) {
     if (rb == nullptr)
         return;
 
-    if (rb->getContactLayer() == phys::ContactLayer::EntityTree)
+    if (rb->getContactLayer() == phys::ContactLayer::EntityAirWall)
         mNearFlag.setDirect(1);
 
     auto* tag = sead::DynamicCast<act::PhysicsUserTag>(rb->getUserTag());
@@ -387,10 +387,13 @@ void AutoPlacement::sub_7100650C28(phys::RigidBody* rb) {
     if (actor == nullptr)
         return;
 
-    mNearFlag.set(act::hasTag(actor, act::tags::Tree) ||
-                  act::hasTag(actor, act::tags::AutoPlacementForbidCreate));
+    if (act::hasTag(actor, act::tags::Tree) ||
+        act::hasTag(actor, act::tags::AutoPlacementForbidCreate)) {
+        mNearFlag.setDirect(1);
+    }
 
-    _b.set(actor->getName() == "AirWallHorse");
+    if (actor->getName() == "AirWallHorse")
+        _b.setDirect(1);
 }
 
 const char* PlacementThing::getCurrentGroundMat() const {
