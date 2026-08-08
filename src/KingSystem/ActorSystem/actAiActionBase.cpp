@@ -4,6 +4,7 @@
 #include "KingSystem/ActorSystem/actAiAction.h"
 #include "KingSystem/ActorSystem/actAiInlineParam.h"
 #include "KingSystem/ActorSystem/actAiRoot.h"
+#include "KingSystem/ActorSystem/AS/ASList.h"
 #include "KingSystem/Resource/Actor/resResourceAIProgram.h"
 #include "KingSystem/Utils/InitTimeInfo.h"
 #include "KingSystem/Utils/Thread/MessageTransceiverId.h"
@@ -373,6 +374,13 @@ Rail** getDefaultRail() {
 
 sead::FixedSafeString<32>* getDefaultString32() {
     return &sDefaultString32;
+}
+
+bool ActionBase::isFinishedAS(u32 slot, u32 seq_bank) {
+    auto* as_list = mActor->getASList();
+    if (!as_list)
+        return true;
+    return as_list->x_4(slot, seq_bank);
 }
 
 }  // namespace ksys::act::ai
