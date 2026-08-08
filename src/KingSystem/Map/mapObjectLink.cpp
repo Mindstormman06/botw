@@ -1,5 +1,6 @@
 #include "KingSystem/Map/mapObjectLink.h"
 #include <container/seadBuffer.h>
+#include "KingSystem/ActorSystem/actActor.h"
 #include "KingSystem/ActorSystem/actActorConstDataAccess.h"
 #include "KingSystem/Map/mapObject.h"
 #include "KingSystem/Map/mapObjectGenGroup.h"
@@ -189,6 +190,11 @@ bool ObjectLinkData::checkDeleteLinkObjRevival() const {
     if (mDeleteLinksSrcObj)
         return mDeleteLinksSrcObj->checkRevivalMaybe(true);
     return false;
+}
+
+void ObjectLinkData::sub_7100D4FB78(Object* obj) {
+    if (mGenGroup)
+        mGenGroup->sub_7100D5119C(obj);
 }
 
 // NON_MATCHING
