@@ -418,21 +418,18 @@ void Object::setRevivalFlagValue(bool value) {
     gdt::Manager::instance()->setBoolNoCheck(value, mRevivalGameDataFlagHash);
 }
 
-// NON_MATCHING
 bool Object::x_18() const {
     act::InfoData::InvalidLifeConditions info;
     const char* s;
-    auto* id = act::InfoData::instance();
 
     if (PlacementMgr::instance() != nullptr &&
         PlacementMgr::instance()->mPlacementActors != nullptr)
-        s = PlacementMgr::instance()->mPlacementActors->mActorData[mActorDataIdx].mActorName.cstr();
+        s = getActorData().mActorName.cstr();
     else
         s = getUnitConfigNameFromByaml();
-    id->getInvalidLifeConditions(s, info);
 
-    sead::Vector3f temp = mTranslate;
-    return !id->sub_7100D30DF8(info, temp);
+    act::InfoData::instance()->getInvalidLifeConditions(s, info);
+    return !info.containsCurrentTimeOrWeather(mTranslate);
 }
 
 bool Object::setupTargetLinks(Object* src, ObjectLink* link, sead::Heap* heap) {
