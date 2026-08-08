@@ -98,7 +98,9 @@ void Actor::emitBasicSigOff() {
 }
 
 bool Actor::checkBasicSig() const {
-    return findPlacementLinkWithType(0) != nullptr;
+    return checkSignal(0);
 }
+
+void Actor::nullsub_4649() {}
 
 }  // namespace ksys::act
