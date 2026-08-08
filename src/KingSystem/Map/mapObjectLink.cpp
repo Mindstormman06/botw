@@ -139,6 +139,86 @@ bool ObjectLink::getObjectProcWithAccessor(act::ActorLinkConstDataAccess& access
 
 ObjectLinkData::ObjectLinkData() = default;
 
+void ObjectLinkData::release(Object* obj, bool a1) {
+    if (a1 && mLinksToSelf.links.size() > 0) {
+        for (s32 i = 0; i < mLinksToSelf.links.size(); ++i) {
+            auto& link = mLinksToSelf.links[i];
+            auto* other = link.other_obj;
+            if (other && other->getLinkData()) {
+                auto link_type = link.type;
+                auto* link_array = &other->getLinkData()->mLinksOther;
+                if (link_type >= MapLinkDefType(0x20) && link_type <= MapLinkDefType(0x28))
+                    link_array = &other->getLinkData()->mLinksCs;
+                if (link_array->links.size() > 0) {
+                    for (s32 j = 0; j < link_array->links.size(); ++j) {
+                        auto& other_link = link_array->links[j];
+                        if (other_link.other_obj == obj && other_link.type == link_type) {
+                            other_link.other_obj = nullptr;
+                            other_link.type = MapLinkDefType::Invalid;
+                            other_link.iter = MubinIter();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    mLinksOther.links.freeBuffer();
+    mLinksCs.links.freeBuffer();
+    if (mGenGroup) {
+        delete mGenGroup;
+        mGenGroup = nullptr;
+    }
+    deleteArrays();
+    delete this;
+}
+
+bool ObjectLinkData::sub_7100D4EC40(Object* src, ObjectLink* link, Object* dest) {
+    if (mLinksToSelf.links.size() == 0)
+        return false;
+
+    auto type = link->type;
+    for (s32 i = 0; i < mLinksToSelf.links.size(); ++i) {
+        auto& entry = mLinksToSelf.links[i];
+        if (entry.other_obj == src && entry.type == type)
+            return true;
+
+        if (entry.other_obj == nullptr) {
+            entry.other_obj = src;
+            entry.type = type;
+            entry.iter = link->iter;
+
+            switch (type) {
+            case MapLinkDefType::BasicSig:
+            case MapLinkDefType::DemoMember: {
+                bool val = false;
+                if (link->iter.tryGetParamBoolByKey(&val, "NoAutoDemoMember"))
+                    mNoAutoDemoMember = val;
+                return true;
+            }
+            case MapLinkDefType::Create:
+            case MapLinkDefType::MtxCopyCreate: {
+                if (src->getFlags().isOn(Object::Flag::IsLinkTag)) {
+                    bool val = false;
+                    if (link->iter.tryGetParamBoolByKey(&val, "AppearFade"))
+                        mAppearFade = val;
+                    mCreateLinksSrcObj = src;
+                }
+                return true;
+            }
+            case MapLinkDefType::Delete: {
+                if (src->getFlags().isOn(Object::Flag::IsLinkTag))
+                    mDeleteLinksSrcObj = src;
+                return true;
+            }
+            default:
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void ObjectLinkData::deleteArrays() {
     if (mRails) {
         delete[] mRails;
