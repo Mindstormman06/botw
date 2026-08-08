@@ -14,6 +14,7 @@ namespace ksys::map {
 
 class GenGroup;
 class Object;
+class PlacementActors;
 class Rail;
 
 enum class MapLinkDefType {

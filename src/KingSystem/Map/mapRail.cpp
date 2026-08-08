@@ -42,6 +42,10 @@ bool RailPoint::parse(MubinIter* iter, sead::Heap* heap) {
 Rail::Rail() = default;
 
 Rail::~Rail() {
+    for (s32 i = 0; i < mRailPoints.size(); ++i) {
+        if (mRailPoints[i])
+            delete mRailPoints[i];
+    }
     mRailPoints.freeBuffer();
 }
 
@@ -256,7 +260,7 @@ RailConnectablePoint::~RailConnectablePoint() {
     sead::HeapMgr::instance()->getCurrentHeap();
 
     if (mJunctionPoint)
-        util::safeDeleteArray(mJunctionPoint);
+        util::safeDelete(mJunctionPoint);
 }
 
 Rail* RailConnectablePoint::getJunctionRail() const {
@@ -320,47 +324,31 @@ const char* RailRoute::getCheckPointName(s32 idx) const {
 }
 
 bool RailRoute::parse(MubinIter* iter) {
-    int success = Rail::parse(iter);
+    bool success = Rail::parse(iter);
 
     bool result = false;
     if (iter->tryGetParamBoolByKey(&result, "RenderEnabled")) {
-        if (result) {
-            mFlags.set(Flag::RenderEnabled);
-        } else {
-            mFlags.reset(Flag::RenderEnabled);
-        }
+        mFlags.change(Flag::RenderEnabled, result);
     }
 
     if (iter->tryGetParamBoolByKey(&result, "AutoPlacementEnabled")) {
-        if (result) {
-            mFlags.set(Flag::AutoPlacementEnabled);
-        } else {
-            mFlags.reset(Flag::AutoPlacementEnabled);
-        }
+        mFlags.change(Flag::AutoPlacementEnabled, result);
     } else {
         success = false;
     }
 
     if (iter->tryGetParamBoolByKey(&result, "IsWalkable")) {
-        if (result) {
-            mFlags.set(Flag::Walkable);
-        } else {
-            mFlags.reset(Flag::Walkable);
-        }
+        mFlags.change(Flag::Walkable, result);
     } else {
         success = false;
     }
 
     if (iter->tryGetParamBoolByKey(&result, "IsEnableHorseTrace")) {
-        if (result) {
-            mFlags.set(Flag::EnableHorseTrace);
-        } else {
-            mFlags.reset(Flag::EnableHorseTrace);
-        }
+        mFlags.change(Flag::EnableHorseTrace, result);
     }
 
-    success &= iter->tryGetParamStringByKey(&mRouteId, "RouteId");
-    return success;
+    bool str_ok = iter->tryGetParamStringByKey(&mRouteId, "RouteId");
+    return success && str_ok;
 }
 
 }  // namespace ksys::map

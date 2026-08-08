@@ -89,34 +89,9 @@ MapLinkDefType ObjectLink::getTypeForName(const sead::SafeString& name) {
 }
 
 bool ObjectLink::sub_7100D4E310(MapLinkDefType t) {
-    switch (t) {
-    case MapLinkDefType::Create:
-    case MapLinkDefType::Delete:
-    case MapLinkDefType::MtxCopyCreate:
-    case MapLinkDefType::Freeze:
-    case MapLinkDefType::ForbidAttention:
+    if (t < MapLinkDefType(0xf))
         return true;
-    default:
-        break;
-    case MapLinkDefType::BasicSig:
-    case MapLinkDefType::AxisX:
-    case MapLinkDefType::AxisY:
-    case MapLinkDefType::AxisZ:
-    case MapLinkDefType::NAxisX:
-    case MapLinkDefType::NAxisY:
-    case MapLinkDefType::NAxisZ:
-    case MapLinkDefType::GimmickSuccess:
-    case MapLinkDefType::VelocityControl:
-    case MapLinkDefType::BasicSigOnOnly:
-    case MapLinkDefType::Remains:
-    case MapLinkDefType::DeadUp:
-    case MapLinkDefType::LifeZero:
-    case MapLinkDefType::Stable:
-    case MapLinkDefType::ChangeAtnSig:
-        return true;
-    }
-
-    return false;
+    return static_cast<u32>(t) - 0xf < 5;
 }
 
 bool ObjectLink::isPlacementLODOrForSaleLink(MapLinkDefType t) {
@@ -220,15 +195,14 @@ bool ObjectLinkData::sub_7100D4EC40(Object* src, ObjectLink* link, Object* dest)
 }
 
 void ObjectLinkData::deleteArrays() {
-    if (mRails) {
-        delete[] mRails;
-        mRails = nullptr;
+    if (mGenGroup) {
+        delete mGenGroup;
+        mGenGroup = nullptr;
     }
-
-    mLinksOther.links.freeBuffer();
-    mLinksCs.links.freeBuffer();
-    mObjects.freeBuffer();
     mLinksToSelf.links.freeBuffer();
+    mLinksOther.links.freeBuffer();
+    mObjects.freeBuffer();
+    mLinksCs.links.freeBuffer();
 }
 
 bool ObjectLinkData::allocLinksToSelf(s32 num_links, sead::Heap* heap) {
