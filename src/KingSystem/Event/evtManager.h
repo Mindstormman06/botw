@@ -29,7 +29,9 @@ public:
 
 private:
     u8 pad_20[0x1d178 - 0x20];
-    sead::Heap* mEventHeap;
+    sead::Heap* mEventHeap = nullptr;
+    u8 pad_1d180[0x1d2b8 - 0x1d180];
+    Event* mActiveEvent = nullptr;
 };
 
 }  // namespace ksys::evt
