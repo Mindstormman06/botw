@@ -13,14 +13,27 @@
 
 namespace ksys::map {
 
-// NON_MATCHING
 Object::Object() {
-    mHardModeFlags.makeAllZero();
-    _b = 0xFF;
+    mFlags0.makeAllZero();
+    mActorDataIdx = 0xffff;
+    mFlags.makeAllZero();
+    mNumLinksPointingToMe = 0;
+    mActorFlags8.makeAllZero();
+    _b = 0xff;
+    mId = 0xffff;
+    mStaticCompoundActorId = -1;
+    _10 = nullptr;
     _18 = nullptr;
     _20 = nullptr;
     mProc = nullptr;
     mLinkData = nullptr;
+    mRevivalGameDataFlagHash = gdt::InvalidHandle;
+    _50 = nullptr;
+    mHashId = 0;
+    mTranslate = sead::Vector3f::zero;
+    mTraverseDist = 0.0f;
+    mTraverseDistInt = 0;
+    mHardModeFlags.makeAllZero();
 }
 
 Object::~Object() {
