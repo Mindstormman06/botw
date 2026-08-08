@@ -251,36 +251,32 @@ void ObjectLinkData::sub_7100D4FB78(Object* obj) {
         mGenGroup->sub_7100D5119C(obj);
 }
 
-// NON_MATCHING
 bool ObjectLinkArray::checkLink(MapLinkDefType t, bool b) {
-    bool x_exists;
+    bool has_on_only = false;
     ObjectLink* link = nullptr;
 
-    if (t != MapLinkDefType::BasicSig) {
-        x_exists = false;
-    } else {
+    if (t == MapLinkDefType::BasicSig) {
         link = findLinkWithType(MapLinkDefType::BasicSigOnOnly);
-        x_exists = link != nullptr;
-
-        if (link != nullptr)
-            goto done;
+        if (link)
+            has_on_only = true;
+        else
+            link = findLinkWithType(t);
+    } else {
+        link = findLinkWithType(t);
     }
 
-    link = findLinkWithType(t);
-
-    if (link == nullptr)
+    if (!link)
         return false;
     if (link->type == MapLinkDefType::VelocityControl)
         return false;
 
-done:
-    act::ActorConstDataAccess acc{};
-
-    if (link->other_obj != nullptr)
+    act::ActorConstDataAccess acc;
+    if (link->other_obj)
         link->other_obj->getActorWithAccessor(acc);
     else
         acc.acquire(nullptr);
-    return acc.checkLinkTagActivated(b, x_exists);
+
+    return acc.checkLinkTagActivated(b, has_on_only);
 }
 
 ObjectLink* ObjectLinkArray::findLinkWithType(MapLinkDefType type) {
