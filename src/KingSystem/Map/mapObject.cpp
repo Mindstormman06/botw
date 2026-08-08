@@ -499,13 +499,13 @@ bool Object::x_20() const {
     if (getActorData().mFlags.isOffBit(ActorData::Flag::RevivalEnable))
         return false;
 
-    if (mFlags0.isOff(Flag0::_400400))
+    if (mFlags0.isOn(Flag0::_400400))
         return false;
 
-    if (!shouldSkipSpawn_(false)) {
-        return checkCreateOrDeleteLinkObjRevival();
-    }
-    return false;
+    if (shouldSkipSpawn_(false))
+        return false;
+
+    return !checkCreateOrDeleteLinkObjRevival();
 }
 
 void Object::onBaseProcCreated(act::BaseProc* actor) {
