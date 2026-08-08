@@ -46,7 +46,7 @@ void AutoPlacementFlowMgr::loadEventFlows() {
 
     for (int i = 0; i < mFlowNearArray.size(); i++) {
         auto& flow = mFlowNearArray[i];
-        flow.evfl_name = sFlowResNames[i];
+        flow.evfl_name = sFlowNearResNames[i];
         flow.idx = 0xFF;
 
         sead::FixedSafeString<128> path;
