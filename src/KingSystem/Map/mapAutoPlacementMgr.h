@@ -4,6 +4,7 @@
 #include <math/seadVector.h>
 #include <prim/seadDelegate.h>
 #include <prim/seadSafeString.h>
+#include <thread/seadCriticalSection.h>
 
 #include "KingSystem/Utils/Types.h"
 
@@ -34,8 +35,28 @@ public:
     // 0x0000007100659350
     bool auto11(const sead::Vector3f& pos);
 
+    struct Entry {
+        act::Actor* actor{};
+        sead::FixedSafeString<64> name;
+        sead::Vector3f vec1{};
+        sead::Vector3f vec2{};
+        sead::Vector3f vec3{};
+        sead::Vector3f vec4{};
+        bool is_box{};
+        u8 _91[0x8b60 - 0x91]{};
+        s16 count{};
+        bool _8b62{};
+        u8 _8b63[5]{};
+    };
+    KSYS_CHECK_SIZE_NX150(Entry, 0x8b68);
+
     sead::DelegateR<AutoPlacementMgr, bool> mDelegate;
-    u8 _48[0x171e48 - 0x48];
+    u8 _48[0x5b0d8 - 0x48];
+    sead::CriticalSection mCS_5b0d8;
+    Entry mEntries[32];
+    u8 _171e18[0x171e46 - 0x171e18];
+    bool _171e46{};
+    u8 _171e47{};
     s32 _171e48{};
 };
 // KSYS_CHECK_SIZE_NX150(AutoPlacementMgr, 0x189E38);
