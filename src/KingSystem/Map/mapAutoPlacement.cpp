@@ -32,6 +32,83 @@ u32 AutoPlacement::sub_710064CD80(u32 a, u32 b) {
     return calc(_4, _5, a, b);
 }
 
+void AutoPlacement::sub_710064CF60(bool force) {
+    if (_5 == 0xff && !force) {
+        s16 num_groups = _0;
+        if (num_groups > 0) {
+            s32 i = 0;
+            s32 max = num_groups;
+            do {
+                s32 idx = i;
+                if (i > 255)
+                    idx = 0;
+                auto& grp = mGroups[idx];
+                if (static_cast<u8>(grp._18 + 1 - _4) > 2 || static_cast<u8>(grp._19 + 1 - _5) > 2) {
+                    max--;
+                    if (i == max) {
+                        grp._1f = 0;
+                    } else {
+                        s32 last_idx = max;
+                        if (max > 255)
+                            last_idx = 0;
+                        mGroups[idx] = mGroups[last_idx];
+                        mGroups[last_idx]._1f = 0;
+                        num_groups = _0;
+                        i--;
+                    }
+                    _0--;
+                }
+                i++;
+                max = num_groups;
+            } while (i < max);
+        }
+    } else {
+        mCS.lock();
+        _0 = 0;
+        mCS.unlock();
+        for (s32 i = 0; i < 256; ++i) {
+            mGroups[i]._1f = 0;
+        }
+    }
+
+    _14++;
+    _6 = 0;
+    mGroupIdx = -1;
+    _9 = 0;
+
+    mThing1.mCS.lock();
+    if (mThing1.mRaycast) {
+        mThing1.mState = PlacementThing::State::PlacementDone;
+        mThing1._8945 = 0;
+    }
+    mThing1.mCS.unlock();
+
+    mThing2.mCS.lock();
+    if (mThing2.mRaycast) {
+        mThing2.mState = PlacementThing::State::PlacementDone;
+        mThing2._8945 = 0;
+    }
+    mThing2.mCS.unlock();
+
+    mThing3.mCS.lock();
+    if (mThing3.mRaycast) {
+        mThing3.mState = PlacementThing::State::PlacementDone;
+        mThing3._8945 = 0;
+    }
+    mThing3.mCS.unlock();
+
+    if (mObjectRefs.size() > 0) {
+        for (s32 i = 0; i < mObjectRefs.size(); ++i) {
+            auto& ref = mObjectRefs[i];
+            s32 idx = ref.idx;
+            if (idx >= 0 && idx < 0x60) {
+                // reset ref
+            }
+        }
+    }
+    mObjectRefs.freeBuffer();
+}
+
 void ActorSpawnInfo::calcSpawnLocations() {
     auto* mgr = act::InfoData::instance();
     al::ByamlIter iter;

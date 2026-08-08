@@ -146,8 +146,9 @@ public:
 private:
     struct ObjectRef {
         Object* obj;
-        void* _8;
+        s32 idx;
     };
+    KSYS_CHECK_SIZE_NX150(ObjectRef, 0x10);
 
     s16 _0 = 0;
     s16 mGroupIdx = -1;
