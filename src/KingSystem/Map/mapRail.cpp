@@ -124,6 +124,73 @@ const u32& Rail::getHashId() const {
     return mHashId;
 }
 
+void Rail::calcTranslateRotate(sead::Vector3f* pos_out, sead::Vector3f* rot_out,
+                               float progress) const {
+    u32 num_points = mRailPoints.size();
+    if (num_points == 1) {
+        auto* p = mRailPoints[0];
+        *pos_out = p->getTranslate();
+        if (rot_out) {
+            *rot_out = sead::Vector3f::zero;
+        }
+        return;
+    }
+
+    if (mFlags.isOn(Flag::Closed)) {
+        float f = progress / static_cast<float>(num_points);
+        progress -= static_cast<float>(num_points) * std::floor(f);
+    }
+
+    u32 idx1 = static_cast<u32>(std::floor(progress));
+    if (!mFlags.isOn(Flag::Closed)) {
+        if (idx1 == num_points - 1)
+            idx1--;
+    }
+
+    u32 idx2 = (idx1 + 1) % num_points;
+    float t = progress - static_cast<float>(idx1);
+
+    auto* p1 = mRailPoints[idx1];
+    auto* p2 = mRailPoints[idx2];
+
+    if (!mFlags.isOn(Flag::Bezier)) {
+        *pos_out = p1->getTranslate() + (p2->getTranslate() - p1->getTranslate()) * t;
+        if (rot_out) {
+            sead::Vector3f diff = p2->getTranslate() - p1->getTranslate();
+            float len = diff.length();
+            if (len > 0.0f) {
+                *rot_out = diff * (1.0f / len);
+            }
+        }
+        return;
+    }
+
+    sead::Vector3f p0_pos = p1->getTranslate();
+    sead::Vector3f p3_pos = p2->getTranslate();
+    sead::Vector3f ctrl1 = getControlPoint(idx1, 1);
+    sead::Vector3f ctrl2 = getControlPoint(idx2, 0);
+
+    float omt = 1.0f - t;
+    float omt2 = omt * omt;
+    float omt3 = omt2 * omt;
+
+    float t2 = t * t;
+    float t3 = t2 * t;
+
+    *pos_out = p0_pos * omt3 + (ctrl1 + p0_pos) * (3.0f * t * omt2) +
+               (ctrl2 + p3_pos) * (3.0f * t2 * omt) + p3_pos * t3;
+
+    if (rot_out) {
+        sead::Vector3f deriv = (ctrl1 + p0_pos - p0_pos) * (-3.0f * omt2) +
+                               (ctrl2 + p3_pos - ctrl1 - p0_pos) * (6.0f * t * omt) +
+                               (p3_pos - ctrl2 - p3_pos) * (3.0f * t2);
+        float len = deriv.length();
+        if (len > 0.0f) {
+            *rot_out = deriv * (1.0f / len);
+        }
+    }
+}
+
 const char* Rail::getUniqueName() const {
     return mUniqueName;
 }

@@ -56,7 +56,7 @@ public:
 
     void threadFn(sead::Thread* thread, sead::MessageQueue::Element msg);
     // 0x00000071011eb4dc
-    bool auto17(Object* obj);
+    bool auto17(Object* obj) const;
     void disableObjStaticCompound_0(Object* obj);
     void auto4(Object* obj, bool b);
 

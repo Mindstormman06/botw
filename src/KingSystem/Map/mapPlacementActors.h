@@ -113,7 +113,7 @@ public:
     Object* getStaticObj_2(s32 idx) const;
     bool sub_7100D524B4() const;
     void x_9();
-    Object* resetGroup(int group_idx);
+    void resetGroup(int group_idx);
     int getNumObjs(int group_idx) const;
     Object* getObj(int group_idx, int object_idx);
     Object* getStaticObj_0(int object_idx);

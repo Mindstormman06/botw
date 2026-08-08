@@ -4,8 +4,22 @@
 
 namespace ksys::map {
 
-u32 PlacementActors::getNumStaticObjs() const {
-    return mGroups[0].size();
+u32 PlacementActors::allocGroupForDynamicMap(PlacementMap* pmap) {
+    for (u32 i = 1; i < 10; ++i) {
+        if (mGroups[i].mBuffer == nullptr) {
+            mGroups[i].mBuffer = reinterpret_cast<Object*>(pmap);
+            return i;
+        }
+    }
+    return 0xffffffff;
+}
+
+void PlacementActors::resetGroup(int group_idx) {
+    u32 idx = group_idx;
+    if (idx > 9)
+        idx = 0;
+    mGroups[idx].mBuffer = nullptr;
+    mGroups[idx].mCount = 0;
 }
 
 int PlacementActors::getNumObjs(int group_idx) const {

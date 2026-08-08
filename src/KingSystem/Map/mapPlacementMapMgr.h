@@ -19,6 +19,7 @@ class PlacementMap;
 
 /* NOT WORKING */
 class PlacementMapMgr {
+    SEAD_SINGLETON_DISPOSER(PlacementMapMgr)
     /* NOT WORKING */
     class PlacementMapArray {
     public:
@@ -59,6 +60,6 @@ private:
     bool mIsShrine;
 };
 
-KSYS_CHECK_SIZE_NX150(PlacementMapMgr, 0xD0);
+KSYS_CHECK_SIZE_NX150(PlacementMapMgr, 0xF0);
 
 }  // namespace ksys::map

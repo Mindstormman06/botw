@@ -131,4 +131,8 @@ bool PlacementMgr::someFlagCheck() const {
     return mFlags.isOn(MgrFlag::_100000);
 }
 
+bool PlacementMgr::auto17(Object* obj) const {
+    return obj->getFlags0().isOn(Object::Flag0::_1000);
+}
+
 }  // namespace ksys::map
