@@ -64,28 +64,8 @@ void Object::free() {
         mLinkData->field_57 = 0;
 }
 
-// NON_MATCHING
 void Object::initData(MubinIter* iter, u8 idx, u32 actor_data_idx, ActorData* data) {
-    mActorDataIdx = 0xFFFF;
-    mFlags0.makeAllZero();
-    mRevivalGameDataFlagHash = gdt::InvalidHandle;
-    mId = 0;
-    mActorFlags8.makeAllZero();
-    mFlags.makeAllZero();
-    mIdx = 0;
-    mNumLinksPointingToMe = 0;
-    mStaticCompoundActorId = -1;
-    _18 = nullptr;
-    _20 = nullptr;
-    _10 = nullptr;
-    _50 = nullptr;
-    mTraverseDist = 0.0f;
-    mTraverseDistInt = 0;
-    mHashId = 0;
-    mHardModeFlags.makeAllZero();
-    _b = 0xFF;
-    mProc = nullptr;
-    mLinkData = nullptr;
+    *this = Object();
     iter->tryGetFloatArrayByKey(&mTranslate.x, "Translate");
     mMubinIter = *iter;
 
