@@ -35,6 +35,8 @@ public:
     bool auto11(const sead::Vector3f& pos);
 
     sead::DelegateR<AutoPlacementMgr, bool> mDelegate;
+    u8 _48[0x171e48 - 0x48];
+    s32 _171e48{};
 };
 // KSYS_CHECK_SIZE_NX150(AutoPlacementMgr, 0x189E38);
 
