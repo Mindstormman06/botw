@@ -29,14 +29,15 @@ void PlacementMgr::releaseTree() {
     mPlacementTree = nullptr;
 }
 
-// NON_MATCHING
 void PlacementMgr::x_3() {
     auto ac = act::ActorCreator::instance();
     const auto loc = sead::makeScopedLock(ac->getCS());
-    if (mNumStaticObjs < mPlacementActors->getNumStaticObjs()) {
+    for (int i = mNumStaticObjs; i < mPlacementActors->getNumStaticObjs(); ++i) {
+        auto* obj = mPlacementActors->getStaticObj_2(i);
+        obj->resetActorFlags8();
         auto list = ac->getActorList();
         for (act::Actor& node : list) {
-            if (node.getMapObject() == mPlacementActors->getStaticObj_2(mNumStaticObjs)) {
+            if (node.getMapObject() == obj) {
                 node.deleteLater(act::BaseProc::DeleteReason::_0);
             }
         }

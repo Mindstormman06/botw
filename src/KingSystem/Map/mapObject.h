@@ -186,6 +186,7 @@ public:
     void resetFlags0(Flag0 bit) { mFlags0.reset(bit); }
     const auto& getFlags() const { return mFlags; }
     const auto& getActorFlags8() const { return mActorFlags8; }
+    void resetActorFlags8() { mActorFlags8.makeAllZero(); }
     const auto& getHardModeFlags() const { return mHardModeFlags; }
 
     auto getActorDataIdx() const { return mActorDataIdx; }
